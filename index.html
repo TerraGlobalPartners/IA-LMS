@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Innovi Center of Excellence — Trainee Development Programme</title>
+<title>IA Center of Excellence — Trainee Development Programme</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231B4332'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-size='18' font-weight='800' fill='%23B68D40' font-family='Georgia'>i</text></svg>">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,7 +16,7 @@
   <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Georgia,serif;color:#1B4332">
     <div style="text-align:center">
       <div style="font-size:48px;margin-bottom:16px">📚</div>
-      <div style="font-size:20px;font-weight:700">Loading Innovi LMS...</div>
+      <div style="font-size:20px;font-weight:700">Loading IA LMS...</div>
       <div style="font-size:13px;color:#888;margin-top:8px">Please wait while the application initialises</div>
     </div>
   </div>
@@ -367,7 +367,7 @@ window.storage = {
 </script>
 
 <script>
-// Innovi LMS Application (pre-compiled, no Babel needed)
+// IA LMS Application (pre-compiled, no Babel needed)
 const {
   useState,
   useEffect,
@@ -1639,12 +1639,9 @@ function LoginScreen({
       alignItems: "center",
       justifyContent: "center",
       fontSize: 28,
-      fontWeight: 800,
-      fontFamily: S.serif,
-      color: "#1B4332",
       marginBottom: 16
     }
-  }, "i"), /*#__PURE__*/React.createElement("h1", {
+  }, "\uD83D\uDCDA"), /*#__PURE__*/React.createElement("h1", {
     style: {
       margin: "0 0 4px",
       fontSize: 24,
@@ -1653,7 +1650,7 @@ function LoginScreen({
       fontFamily: S.serif,
       letterSpacing: "-0.02em"
     }
-  }, "Innovi Center of Excellence"), /*#__PURE__*/React.createElement("p", {
+  }, "Trainee Development Programme"), /*#__PURE__*/React.createElement("p", {
     style: {
       margin: 0,
       fontSize: 12,
@@ -1661,7 +1658,7 @@ function LoginScreen({
       letterSpacing: "0.06em",
       textTransform: "uppercase"
     }
-  }, "In collaboration with TGP")), /*#__PURE__*/React.createElement("div", {
+  }, "Staff Training Portal")), /*#__PURE__*/React.createElement("div", {
     style: {
       background: "white",
       borderRadius: 16,
@@ -1675,7 +1672,7 @@ function LoginScreen({
       fontWeight: 700,
       color: "#1C1917"
     }
-  }, "Trainee Login"), /*#__PURE__*/React.createElement("p", {
+  }, "Sign In"), /*#__PURE__*/React.createElement("p", {
     style: {
       margin: "0 0 24px",
       fontSize: 13,
@@ -1819,7 +1816,7 @@ function LoginScreen({
       fontSize: 11,
       color: "rgba(255,255,255,0.4)"
     }
-  }, "Trainee Development Programme \u2022 Innovi Center of Excellence")));
+  }, "Trainee Development Programme \u2022 Staff Training Portal")));
 }
 function UserManagement({
   onBack,
@@ -1957,7 +1954,7 @@ function UserManagement({
       fontSize: 10.5,
       opacity: 0.7
     }
-  }, "Innovi Center of Excellence \u2014 Admin Panel"))))), /*#__PURE__*/React.createElement("main", {
+  }, "Trainee Development Programme \u2014 Admin Panel"))))), /*#__PURE__*/React.createElement("main", {
     style: {
       maxWidth: 900,
       margin: "0 auto",
@@ -2293,7 +2290,7 @@ function AppWrapper() {
     onBack: () => setScreen("login"),
     onLoginAsUser: u => handleLogin(u)
   });
-  if (screen === "lms" && currentUser) return /*#__PURE__*/React.createElement(InnoviLMS, {
+  if (screen === "lms" && currentUser) return /*#__PURE__*/React.createElement(IALMS, {
     currentUser: currentUser,
     onLogout: handleLogout
   });
@@ -2304,7 +2301,7 @@ function AppWrapper() {
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function InnoviLMS({
+function IALMS({
   currentUser,
   onLogout
 }) {
@@ -2835,7 +2832,7 @@ function InnoviLMS({
       letterSpacing: "-0.02em",
       fontFamily: S.serif
     }
-  }, "Innovi Center of Excellence")), /*#__PURE__*/React.createElement("p", {
+  }, "IA Center of Excellence")), /*#__PURE__*/React.createElement("p", {
     style: {
       margin: "1px 0 0 40px",
       fontSize: 10.5,
@@ -4172,7 +4169,7 @@ function InnoviLMS({
     style: {
       margin: 0
     }
-  }, "Innovi Center of Excellence \u2014 in collaboration with TGP"), /*#__PURE__*/React.createElement("p", {
+  }, "IA Center of Excellence \u2014 in collaboration with TGP"), /*#__PURE__*/React.createElement("p", {
     style: {
       margin: "3px 0 0"
     }
