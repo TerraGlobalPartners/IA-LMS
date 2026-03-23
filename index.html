@@ -325,7 +325,35 @@ function(a,b,c){if(!Vd(b))throw Error(n(200));return Wd(null,a,b,!1,c)};Q.unmoun
 </script>
 
 <script>
-// Storage using localStorage (works everywhere including SharePoint)
+// ═══════════════════════════════════════════════════════════════════════════════
+// GOOGLE SHEETS API CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════════
+// IMPORTANT: Replace the URL below with YOUR Google Apps Script Web App URL
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbx6SNr-WJP7fsiYi7uZLSIIqXwYrKpUleuK6Xmx36aYNYHWOFin0996QjsaoYTOtwr-LQ/exec";
+
+// API helper functions
+window.sheetAPI = {
+  get: async function(action, params) {
+    try {
+      var url = SHEET_API_URL + '?action=' + action;
+      if (params) Object.keys(params).forEach(function(k) { url += '&' + k + '=' + encodeURIComponent(params[k]); });
+      var resp = await fetch(url);
+      return await resp.json();
+    } catch(e) { console.error('API GET error:', e); return { error: e.toString() }; }
+  },
+  post: async function(data) {
+    try {
+      var resp = await fetch(SHEET_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(data)
+      });
+      return await resp.json();
+    } catch(e) { console.error('API POST error:', e); return { error: e.toString() }; }
+  }
+};
+
+// Local storage fallback (keeps window.storage for session/cache and offline use)
 window.storage = {
   get: function(key) {
     return new Promise(function(resolve) {
@@ -1580,16 +1608,37 @@ function LoginScreen({
       return;
     }
     try {
-      const r = await window.storage.get(USERS_KEY);
-      const users = r?.value ? JSON.parse(r.value) : {};
-      const user = Object.values(users).find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-      if (user) {
-        onLogin(user);
+      // Try Google Sheets API first
+      const result = await window.sheetAPI.post({ action: 'login', email: email, password: password });
+      if (result.success && result.user) {
+        onLogin(result.user);
+      } else if (result.error && result.error.indexOf('fetch') !== -1) {
+        // API not configured, fall back to local storage
+        const r = await window.storage.get(USERS_KEY);
+        const users = r?.value ? JSON.parse(r.value) : {};
+        const user = Object.values(users).find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+        if (user) {
+          onLogin(user);
+        } else {
+          setError("Invalid email or password. Please check your credentials or contact your manager.");
+        }
       } else {
-        setError("Invalid email or password. Please check your credentials or contact your manager.");
+        setError(result.error || "Invalid email or password. Please check your credentials or contact your manager.");
       }
     } catch {
-      setError("System error. Please try again.");
+      // Fall back to local storage
+      try {
+        const r = await window.storage.get(USERS_KEY);
+        const users = r?.value ? JSON.parse(r.value) : {};
+        const user = Object.values(users).find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+        if (user) {
+          onLogin(user);
+        } else {
+          setError("Invalid email or password. Please check your credentials or contact your manager.");
+        }
+      } catch {
+        setError("System error. Please try again.");
+      }
     }
   };
   const handleAdminAccess = async () => {
@@ -1833,6 +1882,16 @@ function UserManagement({
   }, []);
   const loadUsers = async () => {
     try {
+      const result = await window.sheetAPI.get('getUsers');
+      if (result.success && result.users) {
+        const usersObj = {};
+        result.users.forEach(u => { usersObj[u.id] = u; });
+        setUsers(usersObj);
+        return;
+      }
+    } catch {}
+    // Fallback to local storage
+    try {
       const r = await window.storage.get(USERS_KEY);
       if (r?.value) setUsers(JSON.parse(r.value));
     } catch {}
@@ -1847,6 +1906,17 @@ function UserManagement({
       setMsg("Please fill in all fields.");
       return;
     }
+    try {
+      const result = await window.sheetAPI.post({ action: 'addUser', name: newName, email: newEmail.toLowerCase(), password: newPassword, track: newTrack });
+      if (result.success) {
+        setMsg("User " + newName + " created successfully!");
+        setTimeout(() => setMsg(""), 3000);
+        setNewName(""); setNewEmail(""); setNewPassword(""); setNewTrack("all");
+        loadUsers();
+        return;
+      }
+    } catch {}
+    // Fallback
     const id = "user-" + Date.now();
     const updated = {
       ...users,
@@ -1861,18 +1931,16 @@ function UserManagement({
     };
     setUsers(updated);
     await saveUsers(updated);
-    setNewName("");
-    setNewEmail("");
-    setNewPassword("");
-    setNewTrack("all");
+    setNewName(""); setNewEmail(""); setNewPassword(""); setNewTrack("all");
     setMsg("User " + newName + " created successfully!");
     setTimeout(() => setMsg(""), 3000);
   };
   const deleteUser = async id => {
-    if (!confirm("Delete user " + users[id].name + "? Their progress data will remain in localStorage.")) return;
-    const updated = {
-      ...users
-    };
+    if (!confirm("Delete user " + users[id].name + "? Their progress data will remain.")) return;
+    try {
+      await window.sheetAPI.post({ action: 'deleteUser', userId: id });
+    } catch {}
+    const updated = { ...users };
     delete updated[id];
     setUsers(updated);
     await saveUsers(updated);
@@ -1880,12 +1948,12 @@ function UserManagement({
   const resetPassword = async id => {
     const newPw = prompt("Enter new password for " + users[id].name + ":");
     if (!newPw) return;
+    try {
+      await window.sheetAPI.post({ action: 'resetPassword', userId: id, newPassword: newPw });
+    } catch {}
     const updated = {
       ...users,
-      [id]: {
-        ...users[id],
-        password: newPw
-      }
+      [id]: { ...users[id], password: newPw }
     };
     setUsers(updated);
     await saveUsers(updated);
@@ -2331,25 +2399,62 @@ function IALMS({
   // Load
   useEffect(() => {
     (async () => {
+      // 1. Try loading CONTENT from Google Sheets API
+      try {
+        const contentResult = await window.sheetAPI.get('getContent');
+        if (contentResult.success) {
+          if (contentResult.modules && Object.keys(contentResult.modules).length > 0) setModules(contentResult.modules);
+          if (contentResult.scenarios) setScenarios(contentResult.scenarios);
+          if (contentResult.tracks && contentResult.tracks.length > 0) {
+            // Store custom tracks if provided (for dynamic track support)
+            window._customTracks = contentResult.tracks;
+          }
+        }
+      } catch(e) {
+        console.log('Sheet API unavailable for content, using defaults');
+      }
+
+      // 2. Try loading PROGRESS from Google Sheets API
+      try {
+        if (currentUser) {
+          const progressResult = await window.sheetAPI.get('getProgress', { userId: currentUser.id });
+          if (progressResult.success) {
+            if (progressResult.completed && Object.keys(progressResult.completed).length > 0) setCompleted(progressResult.completed);
+            if (progressResult.testResults && Object.keys(progressResult.testResults).length > 0) setTestResults(progressResult.testResults);
+            if (progressResult.trainee && progressResult.trainee.name) setTrainee(progressResult.trainee);
+          }
+        }
+      } catch(e) {
+        console.log('Sheet API unavailable for progress, trying local');
+      }
+
+      // 3. Fallback: also load from local storage (for offline or if API partially fails)
       try {
         const r = await window.storage.get(userStorageKey);
         if (r?.value) {
           const d = JSON.parse(r.value);
-          if (d.completed) setCompleted(d.completed);
-          if (d.testResults) setTestResults(d.testResults);
-          if (d.trainee) setTrainee(d.trainee);
-          if (d.modules) setModules(d.modules);
-          if (d.scenarios) setScenarios(d.scenarios);
+          // Only apply local data if API didn't provide it
+          if (d.completed && Object.keys(completed).length === 0) setCompleted(d.completed);
+          if (d.testResults && Object.keys(testResults).length === 0) setTestResults(d.testResults);
+          if (d.trainee && !trainee.name) setTrainee(d.trainee);
+        }
+      } catch {}
+
+      // 4. Load admin config
+      try {
+        const configResult = await window.sheetAPI.get('getConfig');
+        if (configResult.success && configResult.config) {
+          if (configResult.config.adminPin) setAdminPin(configResult.config.adminPin);
         }
       } catch {}
       try {
         const a = await window.storage.get(ADMIN_KEY);
-        if (a?.value) setAdminPin(JSON.parse(a.value).pin || "");
+        if (a?.value && !adminPin) setAdminPin(JSON.parse(a.value).pin || "");
       } catch {}
     })();
   }, []);
 
-  // Save
+  // Save (syncs to Google Sheets API + local storage)
   const save = useCallback(async (overrides = {}) => {
     const data = {
       completed,
@@ -2359,10 +2464,23 @@ function IALMS({
       scenarios,
       ...overrides
     };
+    // Save to local storage (instant, for offline support)
     try {
       await window.storage.set(userStorageKey, JSON.stringify(data));
     } catch {}
-  }, [completed, testResults, trainee, modules, scenarios, userStorageKey]);
+    // Sync progress to Google Sheets API (background, non-blocking)
+    if (currentUser) {
+      try {
+        window.sheetAPI.post({
+          action: 'saveProgress',
+          userId: currentUser.id,
+          completed: overrides.completed || completed,
+          testResults: overrides.testResults || testResults,
+          trainee: overrides.trainee || trainee
+        });
+      } catch {}
+    }
+  }, [completed, testResults, trainee, modules, scenarios, userStorageKey, currentUser]);
   const toggleComplete = id => {
     const next = {
       ...completed,
