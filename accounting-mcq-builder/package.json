@@ -1,7 +1,7 @@
 {
   "name": "accounting-mcq-test-builder",
-  "version": "1.0.2",
-  "description": "Desktop app for building accounting multiple-choice test templates",
+  "version": "1.1.0",
+  "description": "Desktop app for building and running accounting multiple-choice tests with PDF reports",
   "main": "./out/main/index.js",
   "author": "IA Center of Excellence",
   "private": true,

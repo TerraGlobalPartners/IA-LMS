@@ -95,6 +95,28 @@ function registerIpcHandlers() {
       return { canceled: false, error: err.message }
     }
   })
+
+  ipcMain.handle('report:export', async (event, { testTitle, candidateName }) => {
+    const win = BrowserWindow.fromWebContents(event.sender)
+    const safeName = `${candidateName} - ${testTitle}`.replace(/[\\/:*?"<>|]+/g, ' ').trim()
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const { canceled, filePath } = await dialog.showSaveDialog(win, {
+      title: 'Save PDF Report',
+      defaultPath: `${safeName || 'test-report'} - ${dateStr}.pdf`,
+      filters: [{ name: 'PDF', extensions: ['pdf'] }]
+    })
+    if (canceled || !filePath) {
+      return { canceled: true }
+    }
+    try {
+      const data = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4' })
+      const fs = await import('fs/promises')
+      await fs.writeFile(filePath, data)
+      return { canceled: false, filePath }
+    } catch (err) {
+      return { canceled: false, error: err.message }
+    }
+  })
 }
 
 app.whenReady().then(() => {

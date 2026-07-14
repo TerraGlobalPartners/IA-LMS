@@ -8,7 +8,8 @@ const api = {
   duplicateTest: (id) => ipcRenderer.invoke('tests:duplicate', id),
   exportTest: (id) => ipcRenderer.invoke('tests:export', id),
   importTest: () => ipcRenderer.invoke('tests:import'),
-  getVersion: () => ipcRenderer.invoke('app:version')
+  getVersion: () => ipcRenderer.invoke('app:version'),
+  exportReportPdf: (payload) => ipcRenderer.invoke('report:export', payload)
 }
 
 contextBridge.exposeInMainWorld('api', api)

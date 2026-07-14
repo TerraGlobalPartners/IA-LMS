@@ -3,10 +3,11 @@
 A simple desktop app (Windows & Mac) for building multiple-choice accounting
 test templates to use during screen-share interviews.
 
-This is **Stage 1: Test Builder only**. Running a test live and generating a
-PDF report are not part of this stage.
+Stage 1 (Test Builder) and Stage 2 (Run Test + PDF Report) are both included.
 
 ## What it does
+
+**Build Tests tab**
 
 - Create, edit, and delete test templates.
 - Each test has a title and a list of questions, each with 4 answer options
@@ -16,6 +17,20 @@ PDF report are not part of this stage.
   computer) and import one back in.
 - Everything is saved automatically, locally on your computer. No cloud, no
   login, no internet connection required.
+
+**Run Test tab**
+
+- Pick a test template and enter the candidate's name to start.
+- All questions are shown on one page. While the candidate is answering (e.g.
+  during a screen-share), no right/wrong feedback is shown — it's just plain
+  question and answer selection.
+- Clicking "Submit Test" asks for confirmation first (and warns if any
+  questions are still unanswered) so you don't submit by accident.
+- After submitting, you get a results screen with the overall score and a
+  full breakdown of every question — what the candidate picked vs. the
+  correct answer.
+- "Download PDF Report" saves that results screen as a PDF you choose the
+  location for, including candidate name and date.
 
 Your test files live in your OS's standard app data folder, e.g.:
 
