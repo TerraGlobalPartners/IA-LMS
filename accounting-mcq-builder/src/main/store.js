@@ -5,13 +5,21 @@ import { existsSync, mkdirSync } from 'fs'
 import { randomUUID } from 'crypto'
 
 const testsDir = () => join(app.getPath('userData'), 'tests')
+const resultsDir = () => join(app.getPath('userData'), 'results')
 
-function ensureTestsDir() {
-  const dir = testsDir()
+function ensureDir(dir) {
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true })
   }
   return dir
+}
+
+function ensureTestsDir() {
+  return ensureDir(testsDir())
+}
+
+function ensureResultsDir() {
+  return ensureDir(resultsDir())
 }
 
 function toSummary(test) {
@@ -125,4 +133,77 @@ async function importTestFromFile(filePath) {
   return test
 }
 
-export { listTests, getTest, saveTest, deleteTest, duplicateTest, importTestFromFile }
+function scoreOf(result) {
+  const correct = result.questions.filter((q) => result.answers[q.id] === q.correctIndex).length
+  return { correct, total: result.questions.length }
+}
+
+function toResultSummary(result) {
+  const { correct, total } = scoreOf(result)
+  return {
+    id: result.id,
+    candidateName: result.candidateName,
+    testTitle: result.testTitle,
+    submittedAt: result.submittedAt,
+    correct,
+    total
+  }
+}
+
+async function listResults() {
+  const dir = ensureResultsDir()
+  const files = await fs.readdir(dir)
+  const summaries = []
+  for (const file of files) {
+    if (!file.endsWith('.json')) continue
+    try {
+      const raw = await fs.readFile(join(dir, file), 'utf-8')
+      const result = JSON.parse(raw)
+      summaries.push(toResultSummary(result))
+    } catch {
+      // skip unreadable/corrupt file
+    }
+  }
+  summaries.sort((a, b) => (b.submittedAt || '').localeCompare(a.submittedAt || ''))
+  return summaries
+}
+
+async function getResult(id) {
+  const dir = ensureResultsDir()
+  const raw = await fs.readFile(join(dir, `${id}.json`), 'utf-8')
+  return JSON.parse(raw)
+}
+
+async function saveResult(result) {
+  const dir = ensureResultsDir()
+  const id = result.id || randomUUID()
+  const full = {
+    id,
+    testId: result.testId,
+    testTitle: result.testTitle || '',
+    candidateName: result.candidateName || '',
+    submittedAt: result.submittedAt || new Date().toISOString(),
+    questions: result.questions || [],
+    answers: result.answers || {}
+  }
+  await fs.writeFile(join(dir, `${id}.json`), JSON.stringify(full, null, 2), 'utf-8')
+  return full
+}
+
+async function deleteResult(id) {
+  const dir = ensureResultsDir()
+  await fs.unlink(join(dir, `${id}.json`))
+}
+
+export {
+  listTests,
+  getTest,
+  saveTest,
+  deleteTest,
+  duplicateTest,
+  importTestFromFile,
+  listResults,
+  getResult,
+  saveResult,
+  deleteResult
+}

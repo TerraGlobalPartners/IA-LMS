@@ -9,7 +9,11 @@ const api = {
   exportTest: (id) => ipcRenderer.invoke('tests:export', id),
   importTest: () => ipcRenderer.invoke('tests:import'),
   getVersion: () => ipcRenderer.invoke('app:version'),
-  exportReportPdf: (payload) => ipcRenderer.invoke('report:export', payload)
+  exportReportPdf: (payload) => ipcRenderer.invoke('report:export', payload),
+  listResults: () => ipcRenderer.invoke('results:list'),
+  getResult: (id) => ipcRenderer.invoke('results:get', id),
+  saveResult: (result) => ipcRenderer.invoke('results:save', result),
+  deleteResult: (id) => ipcRenderer.invoke('results:delete', id)
 }
 
 contextBridge.exposeInMainWorld('api', api)

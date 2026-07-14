@@ -2,16 +2,16 @@ import React, { useCallback, useEffect, useState } from 'react'
 import RunTestPicker from './components/RunTestPicker'
 import TestRunner from './components/TestRunner'
 import SubmitConfirmModal from './components/SubmitConfirmModal'
-import ResultsScreen from './components/ResultsScreen'
+import ThankYouScreen from './components/ThankYouScreen'
 
-export default function RunView() {
-  const [step, setStep] = useState('picker') // picker | running | results
+export default function RunView({ onCandidateFacingChange }) {
+  const [step, setStep] = useState('picker') // picker | running | thankyou
   const [tests, setTests] = useState([])
   const [selectedTest, setSelectedTest] = useState(null)
   const [candidateName, setCandidateName] = useState('')
   const [answers, setAnswers] = useState({})
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [exportNotice, setExportNotice] = useState(null)
+  const [cancelOpen, setCancelOpen] = useState(false)
 
   const refreshList = useCallback(async () => {
     const list = await window.api.listTests()
@@ -23,10 +23,9 @@ export default function RunView() {
   }, [refreshList])
 
   useEffect(() => {
-    if (!exportNotice) return
-    const t = setTimeout(() => setExportNotice(null), 3500)
-    return () => clearTimeout(t)
-  }, [exportNotice])
+    onCandidateFacingChange?.(step === 'running' || step === 'thankyou')
+    return () => onCandidateFacingChange?.(false)
+  }, [step, onCandidateFacingChange])
 
   const startTest = useCallback(async (testId, name) => {
     const test = await window.api.getTest(testId)
@@ -48,10 +47,18 @@ export default function RunView() {
     setConfirmOpen(true)
   }, [])
 
-  const confirmSubmit = useCallback(() => {
+  const confirmSubmit = useCallback(async () => {
     setConfirmOpen(false)
-    setStep('results')
-  }, [])
+    await window.api.saveResult({
+      testId: selectedTest.id,
+      testTitle: selectedTest.title,
+      candidateName,
+      submittedAt: new Date().toISOString(),
+      questions: selectedTest.questions,
+      answers
+    })
+    setStep('thankyou')
+  }, [selectedTest, candidateName, answers])
 
   const runAnother = useCallback(() => {
     setSelectedTest(null)
@@ -61,18 +68,10 @@ export default function RunView() {
     refreshList()
   }, [refreshList])
 
-  const downloadReport = useCallback(async () => {
-    const result = await window.api.exportReportPdf({
-      testTitle: selectedTest.title,
-      candidateName
-    })
-    if (result.canceled) return
-    if (result.error) {
-      setExportNotice(`Could not save PDF: ${result.error}`)
-      return
-    }
-    setExportNotice('PDF report saved.')
-  }, [selectedTest, candidateName])
+  const confirmCancelTest = useCallback(() => {
+    setCancelOpen(false)
+    runAnother()
+  }, [runAnother])
 
   return (
     <div className="run-view">
@@ -86,17 +85,12 @@ export default function RunView() {
           answeredCount={answeredCount}
           onAnswer={setAnswer}
           onSubmit={requestSubmit}
+          onCancel={() => setCancelOpen(true)}
         />
       )}
 
-      {step === 'results' && selectedTest && (
-        <ResultsScreen
-          test={selectedTest}
-          candidateName={candidateName}
-          answers={answers}
-          onDownloadPdf={downloadReport}
-          onRunAnother={runAnother}
-        />
+      {step === 'thankyou' && selectedTest && (
+        <ThankYouScreen testTitle={selectedTest.title} onDone={runAnother} />
       )}
 
       {confirmOpen && selectedTest && (
@@ -108,7 +102,22 @@ export default function RunView() {
         />
       )}
 
-      {exportNotice && <div className="toast no-print">{exportNotice}</div>}
+      {cancelOpen && (
+        <div className="modal-backdrop" onClick={() => setCancelOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Cancel this test?</h3>
+            <p>The candidate's answers so far will not be saved.</p>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setCancelOpen(false)}>
+                Keep going
+              </button>
+              <button className="btn btn-primary" onClick={confirmCancelTest}>
+                Cancel Test
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

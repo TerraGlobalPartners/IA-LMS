@@ -1,12 +1,28 @@
 import React from 'react'
+import logoLockup from '../assets/logo-lockup.png'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
-export default function TestRunner({ test, candidateName, answers, answeredCount, onAnswer, onSubmit }) {
+export default function TestRunner({
+  test,
+  candidateName,
+  answers,
+  answeredCount,
+  onAnswer,
+  onSubmit,
+  onCancel
+}) {
   const total = test.questions.length
 
   return (
     <div className="run-test">
+      <div className="run-test-topbar">
+        <img className="run-test-logo" src={logoLockup} alt="Terra Global Partners" />
+        <button className="run-cancel-link" onClick={onCancel}>
+          Cancel test
+        </button>
+      </div>
+
       <div className="run-test-header">
         <div>
           <h2>{test.title}</h2>

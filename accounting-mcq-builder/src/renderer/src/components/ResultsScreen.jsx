@@ -1,4 +1,5 @@
 import React from 'react'
+import logoLockup from '../assets/logo-lockup.png'
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
@@ -13,10 +14,18 @@ function scoreTest(test, answers) {
   return { correct, total: test.questions.length, rows }
 }
 
-export default function ResultsScreen({ test, candidateName, answers, onDownloadPdf, onRunAnother }) {
+export default function ResultsScreen({
+  test,
+  candidateName,
+  submittedAt,
+  answers,
+  onDownloadPdf,
+  onBack,
+  backLabel = 'Back'
+}) {
   const { correct, total, rows } = scoreTest(test, answers)
   const percent = total === 0 ? 0 : Math.round((correct / total) * 100)
-  const dateStr = new Date().toLocaleDateString(undefined, {
+  const dateStr = new Date(submittedAt || Date.now()).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -28,17 +37,20 @@ export default function ResultsScreen({ test, candidateName, answers, onDownload
         <button className="btn btn-primary" onClick={onDownloadPdf}>
           Download PDF Report
         </button>
-        <button className="btn btn-secondary" onClick={onRunAnother}>
-          Run Another Test
+        <button className="btn btn-secondary" onClick={onBack}>
+          {backLabel}
         </button>
       </div>
 
       <div className="report-printable">
         <div className="report-header">
-          <h2>{test.title}</h2>
-          <div className="report-meta">
-            <span>Candidate: {candidateName}</span>
-            <span>Date: {dateStr}</span>
+          <img className="report-logo" src={logoLockup} alt="Terra Global Partners" />
+          <div>
+            <h2>{test.title}</h2>
+            <div className="report-meta">
+              <span>Candidate: {candidateName}</span>
+              <span>Date: {dateStr}</span>
+            </div>
           </div>
         </div>
 

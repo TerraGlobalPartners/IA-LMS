@@ -22,23 +22,30 @@ Stage 1 (Test Builder) and Stage 2 (Run Test + PDF Report) are both included.
 
 - Pick a test template and enter the candidate's name to start.
 - All questions are shown on one page. While the candidate is answering (e.g.
-  during a screen-share), no right/wrong feedback is shown — it's just plain
-  question and answer selection.
+  during a screen-share), no right/wrong feedback is shown, and no score or
+  navigation is visible — just the plain questions and answer options.
 - Clicking "Submit Test" asks for confirmation first (and warns if any
   questions are still unanswered) so you don't submit by accident.
-- After submitting, you get a results screen with the overall score and a
-  full breakdown of every question — what the candidate picked vs. the
-  correct answer.
-- "Download PDF Report" saves that results screen as a PDF you choose the
-  location for, including candidate name and date.
+- After submitting, the candidate just sees a plain "Thank you for
+  completing '<test>'" screen. Nothing else.
 
-Your test files live in your OS's standard app data folder, e.g.:
+**Results tab**
 
-- Mac: `~/Library/Application Support/accounting-mcq-test-builder/tests/`
-- Windows: `%APPDATA%\accounting-mcq-test-builder\tests\`
+- Every completed test attempt is saved automatically and shows up here —
+  candidate name, test, date, and score.
+- Click a row to see the full breakdown (what the candidate picked vs. the
+  correct answer for every question) and download it as a PDF report.
+- Results can be deleted individually if you no longer need to keep them.
 
-Each test is its own `.json` file, so you can also back up the whole folder
-if you'd like.
+Your test files and completed results live in your OS's standard app data
+folder, e.g.:
+
+- Mac: `~/Library/Application Support/accounting-mcq-test-builder/`
+- Windows: `%APPDATA%\accounting-mcq-test-builder\`
+
+Inside there, `tests/` holds your test templates and `results/` holds every
+completed candidate attempt, each as its own `.json` file — so you can also
+back up the whole folder if you'd like.
 
 ## Running it during development
 
@@ -81,3 +88,15 @@ this app.
 
 No database, no backend server, no accounts — test data is plain JSON files
 on your own machine.
+
+## Branding
+
+The app uses the Terra Global Partners color palette and logo. The logo
+files were extracted directly from the brand guide PDF (page 7) since the
+original logo image files weren't available to embed directly — if you have
+the official source logo files (ideally PNG with a transparent background),
+you can drop them in at `src/renderer/src/assets/logo-icon.png` (small
+square icon, used in the nav bar) and `src/renderer/src/assets/logo-lockup.png`
+(icon + wordmark, used on the candidate screens and the PDF report) to
+replace the extracted versions — same filenames, so nothing else needs to
+change.

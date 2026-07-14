@@ -6,7 +6,11 @@ import {
   saveTest,
   deleteTest,
   duplicateTest,
-  importTestFromFile
+  importTestFromFile,
+  listResults,
+  getResult,
+  saveResult,
+  deleteResult
 } from './store'
 
 function createWindow() {
@@ -94,6 +98,23 @@ function registerIpcHandlers() {
     } catch (err) {
       return { canceled: false, error: err.message }
     }
+  })
+
+  ipcMain.handle('results:list', async () => {
+    return listResults()
+  })
+
+  ipcMain.handle('results:get', async (_event, id) => {
+    return getResult(id)
+  })
+
+  ipcMain.handle('results:save', async (_event, result) => {
+    return saveResult(result)
+  })
+
+  ipcMain.handle('results:delete', async (_event, id) => {
+    await deleteResult(id)
+    return true
   })
 
   ipcMain.handle('report:export', async (event, { testTitle, candidateName }) => {
