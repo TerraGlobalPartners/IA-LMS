@@ -59,7 +59,9 @@ export default function TestEditor({ test, saveStatus, onChange }) {
           className="title-input"
           value={test.title}
           onChange={(e) => setTitle(e.target.value)}
+          onFocus={(e) => e.target.select()}
           placeholder="Test title"
+          title="Click to rename this test"
         />
         <span className="save-status">{SAVE_LABEL[saveStatus]}</span>
       </div>
