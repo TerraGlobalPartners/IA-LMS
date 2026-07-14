@@ -1,7 +1,7 @@
 {
-  "name": "accounting-mcq-test-builder",
-  "version": "1.3.0",
-  "description": "Desktop app for building and running accounting multiple-choice tests with PDF reports",
+  "name": "tgp-test-app",
+  "version": "1.4.0",
+  "description": "TGP Test App - build and run accounting multiple-choice tests with PDF reports",
   "main": "./out/main/index.js",
   "author": "IA Center of Excellence",
   "private": true,
@@ -27,8 +27,8 @@
     "vite": "^5.4.11"
   },
   "build": {
-    "appId": "com.iacoe.accountingmcqbuilder",
-    "productName": "Accounting MCQ Test Builder",
+    "appId": "com.terraglobalpartners.tgptestapp",
+    "productName": "TGP Test App",
     "files": [
       "out/**/*"
     ],

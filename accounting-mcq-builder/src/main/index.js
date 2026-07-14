@@ -13,13 +13,17 @@ import {
   deleteResult
 } from './store'
 
+// Keep the on-disk data folder name stable across app renames, so
+// existing saved tests/results aren't orphaned by a display-name change.
+app.setName('accounting-mcq-test-builder')
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    title: 'Accounting MCQ Test Builder',
+    title: 'TGP Test App',
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
