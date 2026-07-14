@@ -12,6 +12,7 @@ export default function App() {
   const [current, setCurrent] = useState(null)
   const [saveStatus, setSaveStatus] = useState('idle') // idle | saving | saved
   const [notice, setNotice] = useState(null)
+  const [version, setVersion] = useState(null)
 
   const currentRef = useRef(null)
   const saveTimer = useRef(null)
@@ -26,6 +27,7 @@ export default function App() {
 
   useEffect(() => {
     refreshList()
+    window.api.getVersion().then(setVersion)
   }, [refreshList])
 
   useEffect(() => {
@@ -143,6 +145,7 @@ export default function App() {
       <Sidebar
         tests={tests}
         selectedId={selectedId}
+        version={version}
         onSelect={selectTest}
         onCreate={createTest}
         onDelete={deleteTest}

@@ -9,6 +9,7 @@ function formatDate(iso) {
 export default function Sidebar({
   tests,
   selectedId,
+  version,
   onSelect,
   onCreate,
   onDelete,
@@ -76,6 +77,7 @@ export default function Sidebar({
           </div>
         ))}
       </div>
+      {version && <div className="sidebar-version">v{version}</div>}
     </div>
   )
 }

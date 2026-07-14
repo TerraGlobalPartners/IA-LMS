@@ -7,7 +7,8 @@ const api = {
   deleteTest: (id) => ipcRenderer.invoke('tests:delete', id),
   duplicateTest: (id) => ipcRenderer.invoke('tests:duplicate', id),
   exportTest: (id) => ipcRenderer.invoke('tests:export', id),
-  importTest: () => ipcRenderer.invoke('tests:import')
+  importTest: () => ipcRenderer.invoke('tests:import'),
+  getVersion: () => ipcRenderer.invoke('app:version')
 }
 
 contextBridge.exposeInMainWorld('api', api)

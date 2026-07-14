@@ -74,6 +74,14 @@ body {
   line-height: 1.5;
 }
 
+.sidebar-version {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
 .test-item {
   display: flex;
   align-items: center;

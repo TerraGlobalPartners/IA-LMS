@@ -75,6 +75,10 @@ function registerIpcHandlers() {
     return { canceled: false, filePath }
   })
 
+  ipcMain.handle('app:version', () => {
+    return app.getVersion()
+  })
+
   ipcMain.handle('tests:import', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Import Test',
