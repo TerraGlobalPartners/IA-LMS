@@ -87,14 +87,20 @@ function registerIpcHandlers() {
     const { canceled, filePaths } = await dialog.showOpenDialog({
       title: 'Import Test',
       properties: ['openFile'],
-      filters: [{ name: 'Test Template', extensions: ['json'] }]
+      filters: [
+        { name: 'All supported files', extensions: ['json', 'pdf', 'xlsx', 'xls', 'csv'] },
+        { name: 'Test Template (.json)', extensions: ['json'] },
+        { name: 'PDF', extensions: ['pdf'] },
+        { name: 'Excel', extensions: ['xlsx', 'xls'] },
+        { name: 'CSV', extensions: ['csv'] }
+      ]
     })
     if (canceled || filePaths.length === 0) {
       return { canceled: true }
     }
     try {
-      const test = await importTestFromFile(filePaths[0])
-      return { canceled: false, test }
+      const { test, warning } = await importTestFromFile(filePaths[0])
+      return { canceled: false, test, warning }
     } catch (err) {
       return { canceled: false, error: err.message }
     }

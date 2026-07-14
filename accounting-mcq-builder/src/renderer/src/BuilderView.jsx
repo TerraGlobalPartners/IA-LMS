@@ -12,6 +12,7 @@ export default function BuilderView() {
   const [current, setCurrent] = useState(null)
   const [saveStatus, setSaveStatus] = useState('idle') // idle | saving | saved
   const [notice, setNotice] = useState(null)
+  const [importWarning, setImportWarning] = useState(null)
 
   const currentRef = useRef(null)
   const saveTimer = useRef(null)
@@ -135,7 +136,8 @@ export default function BuilderView() {
     await refreshList()
     setSelectedId(result.test.id)
     setCurrent(result.test)
-    setNotice('Test imported.')
+    setNotice(`Imported "${result.test.title}" (${result.test.questions.length} questions).`)
+    if (result.warning) setImportWarning(result.warning)
   }, [refreshList])
 
   return (
@@ -152,6 +154,20 @@ export default function BuilderView() {
       />
       <TestEditor test={current} saveStatus={saveStatus} onChange={scheduleSave} />
       {notice && <div className="toast">{notice}</div>}
+
+      {importWarning && (
+        <div className="modal-backdrop" onClick={() => setImportWarning(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Please review this import</h3>
+            <p>{importWarning}</p>
+            <div className="modal-actions">
+              <button className="btn btn-primary" onClick={() => setImportWarning(null)}>
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

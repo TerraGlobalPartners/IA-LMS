@@ -1,6 +1,6 @@
 {
   "name": "accounting-mcq-test-builder",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Desktop app for building and running accounting multiple-choice tests with PDF reports",
   "main": "./out/main/index.js",
   "author": "IA Center of Excellence",
@@ -14,6 +14,8 @@
     "dist:win": "electron-vite build && electron-builder --win"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
+    "pdfjs-dist": "^4.10.38",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

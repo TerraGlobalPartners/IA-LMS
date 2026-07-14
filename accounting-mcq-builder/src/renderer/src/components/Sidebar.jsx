@@ -42,7 +42,11 @@ export default function Sidebar({
         <button className="btn btn-primary" onClick={onCreate}>
           + New Test
         </button>
-        <button className="btn btn-secondary" onClick={onImport}>
+        <button
+          className="btn btn-secondary"
+          onClick={onImport}
+          title="Import a test from a .json, .pdf, .xlsx, or .csv file"
+        >
           Import
         </button>
       </div>

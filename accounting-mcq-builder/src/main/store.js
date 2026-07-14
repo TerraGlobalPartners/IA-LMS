@@ -1,8 +1,10 @@
 import { app } from 'electron'
-import { join } from 'path'
+import { join, extname } from 'path'
 import fs from 'fs/promises'
 import { existsSync, mkdirSync } from 'fs'
 import { randomUUID } from 'crypto'
+import { parsePdfQuestions } from './pdfImport'
+import { parseCsvQuestions, parseExcelQuestions } from './excelImport'
 
 const testsDir = () => join(app.getPath('userData'), 'tests')
 const resultsDir = () => join(app.getPath('userData'), 'results')
@@ -109,28 +111,64 @@ async function duplicateTest(id) {
   return copy
 }
 
+const REVIEW_ANSWERS_WARNING =
+  'This file did not tell us which answer is correct for each question, so every question defaulted to option A. Please go through and mark the correct answer for each one.'
+
 async function importTestFromFile(filePath) {
-  const raw = await fs.readFile(filePath, 'utf-8')
-  const data = JSON.parse(raw)
-  if (!isValidTestShape(data)) {
-    throw new Error('That file is not a valid test template.')
-  }
+  const ext = extname(filePath).toLowerCase()
   const now = new Date().toISOString()
+  let title
+  let questions
+  let warning
+
+  if (ext === '.json') {
+    const raw = await fs.readFile(filePath, 'utf-8')
+    const data = JSON.parse(raw)
+    if (!isValidTestShape(data)) {
+      throw new Error('That file is not a valid test template.')
+    }
+    title = data.title
+    questions = data.questions
+  } else if (ext === '.pdf') {
+    const result = await parsePdfQuestions(filePath)
+    title = result.title
+    questions = result.questions
+    const notes = [
+      'PDF import is best-effort. Please review every question — look for any "�" marks (a character the PDF didn\'t extract cleanly and needs retyping), and mark the correct answer for each question (PDFs never contain that information).'
+    ]
+    if (result.incompleteCount > 0) {
+      notes.unshift(`${result.incompleteCount} question(s) did not have exactly 4 options and may need fixing.`)
+    }
+    warning = notes.join(' ')
+  } else if (ext === '.xlsx' || ext === '.xls') {
+    const result = await parseExcelQuestions(filePath)
+    title = result.title
+    questions = result.questions
+    if (!result.hasCorrectColumn) warning = REVIEW_ANSWERS_WARNING
+  } else if (ext === '.csv') {
+    const result = await parseCsvQuestions(filePath)
+    title = result.title
+    questions = result.questions
+    if (!result.hasCorrectColumn) warning = REVIEW_ANSWERS_WARNING
+  } else {
+    throw new Error('Unsupported file type. Please choose a .json, .pdf, .xlsx, or .csv file.')
+  }
+
   const test = {
     id: randomUUID(),
-    title: data.title,
+    title: title || 'Imported Test',
     createdAt: now,
     updatedAt: now,
-    questions: data.questions.map((q) => ({
+    questions: questions.map((q) => ({
       id: randomUUID(),
       text: q.text,
       options: q.options,
-      correctIndex: q.correctIndex
+      correctIndex: q.correctIndex ?? 0
     }))
   }
   const dir = ensureTestsDir()
   await fs.writeFile(join(dir, `${test.id}.json`), JSON.stringify(test, null, 2), 'utf-8')
-  return test
+  return { test, warning }
 }
 
 function scoreOf(result) {

@@ -15,6 +15,8 @@ Stage 1 (Test Builder) and Stage 2 (Run Test + PDF Report) are both included.
 - Duplicate a question or an entire test.
 - Export a test to a `.json` file (for backup or to move it to another
   computer) and import one back in.
+- Import questions from other sources too — see "Importing tests from other
+  formats" below.
 - Everything is saved automatically, locally on your computer. No cloud, no
   login, no internet connection required.
 
@@ -46,6 +48,35 @@ folder, e.g.:
 Inside there, `tests/` holds your test templates and `results/` holds every
 completed candidate attempt, each as its own `.json` file — so you can also
 back up the whole folder if you'd like.
+
+## Importing tests from other formats
+
+The "Import" button (Build Tests tab) accepts more than this app's own
+`.json` export — useful if you already have tests built in Google Forms,
+Zoho Forms, or a spreadsheet.
+
+**PDF** — works well with a single-column form export where questions are
+numbered "1.", "2." etc. with 4 answer options each (e.g. printing a Google
+Forms or Zoho Forms quiz to PDF). This is inherently best-effort: PDF text
+extraction can occasionally drop a punctuation mark (shown as a `�`
+character so it's easy to spot), and — importantly — **a PDF never contains
+the correct answer**, since that's only stored in the original form's
+private settings, never printed anywhere a form-filler can see. Every
+imported question defaults to option A as "correct" and needs the actual
+right answer marked by hand afterward, same as importing from Excel/CSV
+without an answer column (below). After importing a PDF, always read
+through the questions once before using the test live.
+
+**Excel (.xlsx) and CSV** — the first row must have column headers:
+`Question`, `Option A`, `Option B`, `Option C`, `Option D`, and optionally
+`Correct Answer`. If you include the Correct Answer column, it can be the
+letter (A-D), a number (1-4), or the exact text of the correct option, and
+it'll be marked automatically; if you leave it out, every question imports
+with option A marked correct and you mark the real answer per question
+afterward, the same as the PDF flow.
+
+In every case, you'll see a summary after import if anything needs a second
+look.
 
 ## Running it during development
 
@@ -85,6 +116,10 @@ this app.
   tooling for Electron + React.
 - [electron-builder](https://www.electron.build/) — produces the `.dmg`
   (Mac) and installer `.exe` (Windows).
+- [pdfjs-dist](https://mozilla.github.io/pdf.js/) — reads text out of
+  imported PDFs (pure JS, no external programs required).
+- [exceljs](https://github.com/exceljs/exceljs) — reads imported `.xlsx`
+  files.
 
 No database, no backend server, no accounts — test data is plain JSON files
 on your own machine.
