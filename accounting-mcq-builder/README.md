@@ -1,4 +1,4 @@
-# Accounting MCQ Test Builder
+# TGP Test App
 
 A simple desktop app (Windows & Mac) for building multiple-choice accounting
 test templates to use during screen-share interviews.
@@ -44,6 +44,10 @@ folder, e.g.:
 
 - Mac: `~/Library/Application Support/accounting-mcq-test-builder/`
 - Windows: `%APPDATA%\accounting-mcq-test-builder\`
+
+(This folder name stays as `accounting-mcq-test-builder` even though the
+app is now called "TGP Test App" — it's pinned internally so renaming the
+app never orphans anything you've already saved.)
 
 Inside there, `tests/` holds your test templates and `results/` holds every
 completed candidate attempt, each as its own `.json` file — so you can also
