@@ -126,6 +126,13 @@ export default function BuilderView() {
     }
   }, [])
 
+  const exportTestCsv = useCallback(async (id) => {
+    const result = await window.api.exportTestCsv(id)
+    if (!result.canceled) {
+      setNotice('Test exported as CSV.')
+    }
+  }, [])
+
   const importTest = useCallback(async () => {
     const result = await window.api.importTest()
     if (result.canceled) return
@@ -150,6 +157,7 @@ export default function BuilderView() {
         onDelete={deleteTest}
         onDuplicate={duplicateTest}
         onExport={exportTest}
+        onExportCsv={exportTestCsv}
         onImport={importTest}
       />
       <TestEditor test={current} saveStatus={saveStatus} onChange={scheduleSave} />

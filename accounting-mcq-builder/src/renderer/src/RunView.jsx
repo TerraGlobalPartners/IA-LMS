@@ -4,11 +4,21 @@ import TestRunner from './components/TestRunner'
 import SubmitConfirmModal from './components/SubmitConfirmModal'
 import ThankYouScreen from './components/ThankYouScreen'
 
+function blankCandidate() {
+  return { name: '', phone: '', email: '', dob: '' }
+}
+
+function isAnswered(question, answers) {
+  const value = answers[question.id]
+  if (question.type === 'text') return Boolean(value && value.trim())
+  return value !== undefined
+}
+
 export default function RunView({ onCandidateFacingChange }) {
   const [step, setStep] = useState('picker') // picker | running | thankyou
   const [tests, setTests] = useState([])
   const [selectedTest, setSelectedTest] = useState(null)
-  const [candidateName, setCandidateName] = useState('')
+  const [candidate, setCandidate] = useState(blankCandidate())
   const [answers, setAnswers] = useState({})
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [cancelOpen, setCancelOpen] = useState(false)
@@ -27,20 +37,20 @@ export default function RunView({ onCandidateFacingChange }) {
     return () => onCandidateFacingChange?.(false)
   }, [step, onCandidateFacingChange])
 
-  const startTest = useCallback(async (testId, name) => {
+  const startTest = useCallback(async (testId, candidateInfo) => {
     const test = await window.api.getTest(testId)
     setSelectedTest(test)
-    setCandidateName(name)
+    setCandidate(candidateInfo)
     setAnswers({})
     setStep('running')
   }, [])
 
-  const setAnswer = useCallback((questionId, optionIndex) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: optionIndex }))
+  const setAnswer = useCallback((questionId, value) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }))
   }, [])
 
   const answeredCount = selectedTest
-    ? selectedTest.questions.filter((q) => answers[q.id] !== undefined).length
+    ? selectedTest.questions.filter((q) => isAnswered(q, answers)).length
     : 0
 
   const requestSubmit = useCallback(() => {
@@ -52,17 +62,20 @@ export default function RunView({ onCandidateFacingChange }) {
     await window.api.saveResult({
       testId: selectedTest.id,
       testTitle: selectedTest.title,
-      candidateName,
+      candidateName: candidate.name,
+      candidatePhone: candidate.phone,
+      candidateEmail: candidate.email,
+      candidateDob: candidate.dob,
       submittedAt: new Date().toISOString(),
       questions: selectedTest.questions,
       answers
     })
     setStep('thankyou')
-  }, [selectedTest, candidateName, answers])
+  }, [selectedTest, candidate, answers])
 
   const runAnother = useCallback(() => {
     setSelectedTest(null)
-    setCandidateName('')
+    setCandidate(blankCandidate())
     setAnswers({})
     setStep('picker')
     refreshList()
@@ -80,7 +93,7 @@ export default function RunView({ onCandidateFacingChange }) {
       {step === 'running' && selectedTest && (
         <TestRunner
           test={selectedTest}
-          candidateName={candidateName}
+          candidateName={candidate.name}
           answers={answers}
           answeredCount={answeredCount}
           onAnswer={setAnswer}

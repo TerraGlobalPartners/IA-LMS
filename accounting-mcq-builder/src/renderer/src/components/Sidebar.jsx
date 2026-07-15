@@ -14,6 +14,7 @@ export default function Sidebar({
   onDelete,
   onDuplicate,
   onExport,
+  onExportCsv,
   onImport
 }) {
   const handleDelete = (e, id, title) => {
@@ -31,6 +32,11 @@ export default function Sidebar({
   const handleExport = (e, id) => {
     e.stopPropagation()
     onExport(id)
+  }
+
+  const handleExportCsv = (e, id) => {
+    e.stopPropagation()
+    onExportCsv(id)
   }
 
   return (
@@ -70,8 +76,11 @@ export default function Sidebar({
               <button title="Duplicate" onClick={(e) => handleDuplicate(e, t.id)}>
                 ⧉
               </button>
-              <button title="Export" onClick={(e) => handleExport(e, t.id)}>
+              <button title="Export as .json" onClick={(e) => handleExport(e, t.id)}>
                 ⭳
+              </button>
+              <button className="csv-export-btn" title="Export as .csv" onClick={(e) => handleExportCsv(e, t.id)}>
+                CSV
               </button>
               <button title="Delete" onClick={(e) => handleDelete(e, t.id, t.title)}>
                 ✕

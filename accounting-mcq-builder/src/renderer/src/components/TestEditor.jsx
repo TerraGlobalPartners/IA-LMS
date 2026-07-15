@@ -5,6 +5,7 @@ function blankQuestion() {
   return {
     id: crypto.randomUUID(),
     text: '',
+    type: 'mcq',
     options: ['', '', '', ''],
     correctIndex: 0
   }

@@ -218,6 +218,13 @@ body {
   color: var(--text);
 }
 
+.csv-export-btn {
+  width: auto !important;
+  padding: 0 6px;
+  font-size: 10px !important;
+  font-weight: 700;
+}
+
 /* Buttons */
 .btn {
   border: none;
@@ -338,6 +345,40 @@ body {
   background: #fbf0dc;
   padding: 2px 8px;
   border-radius: 10px;
+}
+
+.question-type-toggle {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.question-type-toggle button {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.question-type-toggle button.active {
+  background: var(--panel);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.text-answer-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
 }
 
 .question-card-actions {
@@ -495,7 +536,7 @@ body {
 }
 
 .run-start-panel {
-  max-width: 360px;
+  max-width: 400px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -508,6 +549,12 @@ body {
   font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 6px;
+}
+
+.run-optional-tag {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .run-name-input {
@@ -617,6 +664,21 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.run-text-answer {
+  width: 100%;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+
+.run-text-answer:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .run-option-row {
@@ -730,6 +792,7 @@ body {
 
 .report-score {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 12px;
   padding: 16px 0;
@@ -746,6 +809,21 @@ body {
 .report-score-percent {
   font-size: 18px;
   color: var(--text-muted);
+}
+
+.report-score-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  width: 100%;
+  margin-top: 4px;
+}
+
+.report-text-answer {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  white-space: pre-wrap;
 }
 
 .report-breakdown {

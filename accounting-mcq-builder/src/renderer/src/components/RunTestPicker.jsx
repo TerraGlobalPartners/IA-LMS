@@ -3,12 +3,20 @@ import React, { useState } from 'react'
 export default function RunTestPicker({ tests, onStart }) {
   const [selectedId, setSelectedId] = useState(null)
   const [candidateName, setCandidateName] = useState('')
+  const [candidatePhone, setCandidatePhone] = useState('')
+  const [candidateEmail, setCandidateEmail] = useState('')
+  const [candidateDob, setCandidateDob] = useState('')
 
   const canStart = Boolean(selectedId) && candidateName.trim().length > 0
 
   const handleStart = () => {
     if (!canStart) return
-    onStart(selectedId, candidateName.trim())
+    onStart(selectedId, {
+      name: candidateName.trim(),
+      phone: candidatePhone.trim(),
+      email: candidateEmail.trim(),
+      dob: candidateDob.trim()
+    })
   }
 
   return (
@@ -50,6 +58,42 @@ export default function RunTestPicker({ tests, onStart }) {
             value={candidateName}
             onChange={(e) => setCandidateName(e.target.value)}
           />
+
+          <label className="run-name-label" htmlFor="candidate-phone">
+            Phone number <span className="run-optional-tag">(optional)</span>
+          </label>
+          <input
+            id="candidate-phone"
+            className="run-name-input"
+            type="text"
+            placeholder="e.g. +44 7700 900000"
+            value={candidatePhone}
+            onChange={(e) => setCandidatePhone(e.target.value)}
+          />
+
+          <label className="run-name-label" htmlFor="candidate-email">
+            Email address <span className="run-optional-tag">(optional)</span>
+          </label>
+          <input
+            id="candidate-email"
+            className="run-name-input"
+            type="text"
+            placeholder="e.g. jane@example.com"
+            value={candidateEmail}
+            onChange={(e) => setCandidateEmail(e.target.value)}
+          />
+
+          <label className="run-name-label" htmlFor="candidate-dob">
+            Date of birth <span className="run-optional-tag">(optional)</span>
+          </label>
+          <input
+            id="candidate-dob"
+            className="run-name-input"
+            type="date"
+            value={candidateDob}
+            onChange={(e) => setCandidateDob(e.target.value)}
+          />
+
           <button className="btn btn-primary run-start-btn" disabled={!canStart} onClick={handleStart}>
             Start Test
           </button>

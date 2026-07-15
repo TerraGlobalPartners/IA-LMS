@@ -63,6 +63,9 @@ export default function ResultsHistoryView() {
         <ResultsScreen
           test={{ title: selected.testTitle, questions: selected.questions }}
           candidateName={selected.candidateName}
+          candidatePhone={selected.candidatePhone}
+          candidateEmail={selected.candidateEmail}
+          candidateDob={selected.candidateDob}
           submittedAt={selected.submittedAt}
           answers={selected.answers}
           onDownloadPdf={downloadReport}
