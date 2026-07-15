@@ -34,7 +34,7 @@ function questionsFromRows(rows, title) {
     throw new Error('That file appears to be empty.')
   }
   const headers = rows[0].map(normalizeHeader)
-  const questionCol = findColumn(headers, [/^question$/, /question/])
+  const questionCol = findColumn(headers, [/^question$/, /^question\s*text$/, /^prompt$/])
   const optionCols = [
     findColumn(headers, [/^option\s*a$/, /^a$/, /^choice\s*a$/, /^option\s*1$/]),
     findColumn(headers, [/^option\s*b$/, /^b$/, /^choice\s*b$/, /^option\s*2$/]),
@@ -42,10 +42,11 @@ function questionsFromRows(rows, title) {
     findColumn(headers, [/^option\s*d$/, /^d$/, /^choice\s*d$/, /^option\s*4$/])
   ]
   const correctCol = findColumn(headers, [/^correct\s*answer$/, /^answer$/, /^correct$/, /^correct\s*option$/])
+  const typeCol = findColumn(headers, [/^question\s*type$/, /^type$/])
 
   if (questionCol === -1 || optionCols.some((c) => c === -1)) {
     throw new Error(
-      'Could not find the expected columns. The first row should have headers: Question, Option A, Option B, Option C, Option D (and optionally Correct Answer).'
+      'Could not find the expected columns. The first row should have headers: Question, Option A, Option B, Option C, Option D (and optionally Correct Answer, Question Type).'
     )
   }
 
@@ -54,17 +55,19 @@ function questionsFromRows(rows, title) {
     const row = rows[r]
     if (!row) continue
     const text = String(row[questionCol] ?? '').trim()
-    const options = optionCols.map((c) => String(row[c] ?? '').trim())
+    const isTextType = typeCol >= 0 && /^text$/i.test(String(row[typeCol] ?? '').trim())
+    const options = isTextType ? ['', '', '', ''] : optionCols.map((c) => String(row[c] ?? '').trim())
     if (!text && options.every((o) => !o)) continue // skip blank rows
-    const correctIndex = correctCol >= 0 ? resolveCorrectIndex(row[correctCol], options) : 0
-    questions.push({ text, options, correctIndex })
+    const correctIndex = !isTextType && correctCol >= 0 ? resolveCorrectIndex(row[correctCol], options) : 0
+    questions.push({ text, type: isTextType ? 'text' : 'mcq', options, correctIndex })
   }
 
   if (questions.length === 0) {
     throw new Error('No question rows found below the header row.')
   }
 
-  return { title, questions, hasCorrectColumn: correctCol >= 0 }
+  const needsCorrectAnswerReview = questions.some((q) => q.type !== 'text') && correctCol === -1
+  return { title, questions, hasCorrectColumn: !needsCorrectAnswerReview }
 }
 
 function parseCsvText(text) {
@@ -107,6 +110,35 @@ function parseCsvText(text) {
   return rows.filter((r) => r.some((cell) => String(cell).trim() !== ''))
 }
 
+function csvField(value) {
+  const str = String(value ?? '')
+  if (/[",\n\r]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`
+  }
+  return str
+}
+
+function testToCsv(test) {
+  const header = ['Question Type', 'Question', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Answer']
+  const lines = [header.map(csvField).join(',')]
+  for (const q of test.questions) {
+    const isText = q.type === 'text'
+    const row = isText
+      ? ['Text', q.text, '', '', '', '', '']
+      : [
+          'MCQ',
+          q.text,
+          q.options[0] || '',
+          q.options[1] || '',
+          q.options[2] || '',
+          q.options[3] || '',
+          String.fromCharCode(65 + (q.correctIndex || 0))
+        ]
+    lines.push(row.map(csvField).join(','))
+  }
+  return lines.join('\r\n') + '\r\n'
+}
+
 async function parseCsvQuestions(filePath) {
   const text = await fs.readFile(filePath, 'utf-8')
   const rows = parseCsvText(text)
@@ -129,4 +161,4 @@ async function parseExcelQuestions(filePath) {
   return questionsFromRows(rows, titleFromPath(filePath))
 }
 
-export { parseCsvQuestions, parseExcelQuestions }
+export { parseCsvQuestions, parseExcelQuestions, testToCsv }

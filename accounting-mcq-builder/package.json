@@ -1,6 +1,6 @@
 {
   "name": "tgp-test-app",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "TGP Test App - build and run accounting multiple-choice tests with PDF reports",
   "main": "./out/main/index.js",
   "author": "IA Center of Excellence",

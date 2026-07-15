@@ -39,6 +39,9 @@ function isValidTestShape(data) {
   if (!Array.isArray(data.questions)) return false
   for (const q of data.questions) {
     if (typeof q.text !== 'string') return false
+    // Older test files predate the "type" field - absence means a regular
+    // multiple-choice question, same as it always was.
+    if (q.type === 'text') continue
     if (!Array.isArray(q.options) || q.options.length !== 4) return false
     if (!q.options.every((o) => typeof o === 'string')) return false
     if (
@@ -84,7 +87,7 @@ async function saveTest(test) {
     title: test.title || '',
     createdAt: test.createdAt || now,
     updatedAt: now,
-    questions: test.questions || []
+    questions: (test.questions || []).map((q) => ({ ...q, type: q.type === 'text' ? 'text' : 'mcq' }))
   }
   await fs.writeFile(join(dir, `${id}.json`), JSON.stringify(full, null, 2), 'utf-8')
   return full
@@ -162,8 +165,9 @@ async function importTestFromFile(filePath) {
     questions: questions.map((q) => ({
       id: randomUUID(),
       text: q.text,
-      options: q.options,
-      correctIndex: q.correctIndex ?? 0
+      type: q.type === 'text' ? 'text' : 'mcq',
+      options: q.type === 'text' ? ['', '', '', ''] : q.options,
+      correctIndex: q.type === 'text' ? 0 : q.correctIndex ?? 0
     }))
   }
   const dir = ensureTestsDir()
@@ -172,8 +176,9 @@ async function importTestFromFile(filePath) {
 }
 
 function scoreOf(result) {
-  const correct = result.questions.filter((q) => result.answers[q.id] === q.correctIndex).length
-  return { correct, total: result.questions.length }
+  const scored = result.questions.filter((q) => q.type !== 'text')
+  const correct = scored.filter((q) => result.answers[q.id] === q.correctIndex).length
+  return { correct, total: scored.length }
 }
 
 function toResultSummary(result) {
@@ -220,6 +225,9 @@ async function saveResult(result) {
     testId: result.testId,
     testTitle: result.testTitle || '',
     candidateName: result.candidateName || '',
+    candidatePhone: result.candidatePhone || '',
+    candidateEmail: result.candidateEmail || '',
+    candidateDob: result.candidateDob || '',
     submittedAt: result.submittedAt || new Date().toISOString(),
     questions: result.questions || [],
     answers: result.answers || {}

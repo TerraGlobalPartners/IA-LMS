@@ -10,11 +10,16 @@ Stage 1 (Test Builder) and Stage 2 (Run Test + PDF Report) are both included.
 **Build Tests tab**
 
 - Create, edit, and delete test templates.
-- Each test has a title and a list of questions, each with 4 answer options
-  (A-D) and one marked as correct.
+- Each test has a title and a list of questions. Every question is either:
+  - **Multiple Choice** — 4 answer options (A-D) with one marked as correct, or
+  - **Text Answer** — the candidate types their answer into a text box
+    instead. There's no automatic right/wrong for these (a computer can't
+    grade free text), so they don't count toward the score — you read the
+    candidate's typed answer yourself in the results report.
 - Duplicate a question or an entire test.
-- Export a test to a `.json` file (for backup or to move it to another
-  computer) and import one back in.
+- Export a test to a `.json` file, or as a `.csv` file (handy for backing up
+  or moving your tests to another computer — see "Importing tests from other
+  formats" below for the column format), and import either kind back in.
 - Import questions from other sources too — see "Importing tests from other
   formats" below.
 - Everything is saved automatically, locally on your computer. No cloud, no
@@ -22,10 +27,14 @@ Stage 1 (Test Builder) and Stage 2 (Run Test + PDF Report) are both included.
 
 **Run Test tab**
 
-- Pick a test template and enter the candidate's name to start.
+- Pick a test template. Enter the candidate's name (required), and
+  optionally their phone number, email address, and date of birth — these
+  only show up in the PDF report if you actually fill them in; leave any of
+  them blank and they're simply omitted, no empty rows.
 - All questions are shown on one page. While the candidate is answering (e.g.
   during a screen-share), no right/wrong feedback is shown, and no score or
-  navigation is visible — just the plain questions and answer options.
+  navigation is visible — just the plain questions and answer options (or a
+  text box for Text Answer questions).
 - Clicking "Submit Test" asks for confirmation first (and warns if any
   questions are still unanswered) so you don't submit by accident.
 - After submitting, the candidate just sees a plain "Thank you for
@@ -34,9 +43,11 @@ Stage 1 (Test Builder) and Stage 2 (Run Test + PDF Report) are both included.
 **Results tab**
 
 - Every completed test attempt is saved automatically and shows up here —
-  candidate name, test, date, and score.
+  candidate name, test, date, and score (Text Answer questions aren't
+  included in the score, only Multiple Choice ones).
 - Click a row to see the full breakdown (what the candidate picked vs. the
-  correct answer for every question) and download it as a PDF report.
+  correct answer for every multiple-choice question, plus the candidate's
+  typed answer for every text question) and download it as a PDF report.
 - Results can be deleted individually if you no longer need to keep them.
 
 Your test files and completed results live in your OS's standard app data
@@ -73,11 +84,16 @@ through the questions once before using the test live.
 
 **Excel (.xlsx) and CSV** — the first row must have column headers:
 `Question`, `Option A`, `Option B`, `Option C`, `Option D`, and optionally
-`Correct Answer`. If you include the Correct Answer column, it can be the
-letter (A-D), a number (1-4), or the exact text of the correct option, and
-it'll be marked automatically; if you leave it out, every question imports
-with option A marked correct and you mark the real answer per question
-afterward, the same as the PDF flow.
+`Correct Answer` and `Question Type`. If you include the Correct Answer
+column, it can be the letter (A-D), a number (1-4), or the exact text of the
+correct option, and it'll be marked automatically; if you leave it out,
+every question imports with option A marked correct and you mark the real
+answer per question afterward, the same as the PDF flow. To import a Text
+Answer question (no fixed options), put `Text` in the Question Type column
+for that row and leave its option/answer columns blank — this is exactly
+the format this app's own CSV export uses, so exporting a test and
+importing it again (e.g. on another computer) round-trips perfectly,
+including Text Answer questions.
 
 In every case, you'll see a summary after import if anything needs a second
 look.

@@ -38,20 +38,30 @@ export default function TestRunner({
           <div className="run-question-card" key={q.id}>
             <div className="run-question-number">Question {i + 1}</div>
             <div className="run-question-text">{q.text}</div>
-            <div className="run-options-list">
-              {q.options.map((opt, i2) => (
-                <label className="run-option-row" key={i2}>
-                  <input
-                    type="radio"
-                    name={`run-q-${q.id}`}
-                    checked={answers[q.id] === i2}
-                    onChange={() => onAnswer(q.id, i2)}
-                  />
-                  <span className="run-option-letter">{LETTERS[i2]}</span>
-                  <span className="run-option-text">{opt}</span>
-                </label>
-              ))}
-            </div>
+            {q.type === 'text' ? (
+              <textarea
+                className="run-text-answer"
+                placeholder="Type your answer here..."
+                value={answers[q.id] || ''}
+                onChange={(e) => onAnswer(q.id, e.target.value)}
+                rows={3}
+              />
+            ) : (
+              <div className="run-options-list">
+                {q.options.map((opt, i2) => (
+                  <label className="run-option-row" key={i2}>
+                    <input
+                      type="radio"
+                      name={`run-q-${q.id}`}
+                      checked={answers[q.id] === i2}
+                      onChange={() => onAnswer(q.id, i2)}
+                    />
+                    <span className="run-option-letter">{LETTERS[i2]}</span>
+                    <span className="run-option-text">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>

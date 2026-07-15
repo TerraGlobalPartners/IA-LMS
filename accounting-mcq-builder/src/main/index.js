@@ -12,6 +12,7 @@ import {
   saveResult,
   deleteResult
 } from './store'
+import { testToCsv } from './excelImport'
 
 // Keep the on-disk data folder name stable across app renames, so
 // existing saved tests/results aren't orphaned by a display-name change.
@@ -80,6 +81,22 @@ function registerIpcHandlers() {
     }
     const fs = await import('fs/promises')
     await fs.writeFile(filePath, JSON.stringify(test, null, 2), 'utf-8')
+    return { canceled: false, filePath }
+  })
+
+  ipcMain.handle('tests:export-csv', async (_event, id) => {
+    const test = await getTest(id)
+    const safeName = (test.title || 'untitled-test').replace(/[\\/:*?"<>|]+/g, ' ').trim()
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Export Test as CSV',
+      defaultPath: `${safeName || 'untitled-test'}.csv`,
+      filters: [{ name: 'CSV', extensions: ['csv'] }]
+    })
+    if (canceled || !filePath) {
+      return { canceled: true }
+    }
+    const fs = await import('fs/promises')
+    await fs.writeFile(filePath, testToCsv(test), 'utf-8')
     return { canceled: false, filePath }
   })
 
